@@ -6,6 +6,9 @@ module myth
 export hello
 
 function hello(;name::String="sikaiwei", greet::String="how is the weather?")
+	doc="""
+	I am a function named hello from a module named myth~
+	"""
 	println("hello, $name. $greet")
 end
 #println(typeof(hello).name.mt.name)
