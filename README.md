@@ -30,7 +30,7 @@ then run command line like this:
 $ julia  doc/myth.jl hello --name 'myth' --greet 'what a good day!'
 ... start fire
 parse args for Module
-hello, xx. how is the weather?
+hello, myth. what a good day!
 ... end fire
 ```
 <br> doc/func.jl is an example call form Function directly:
