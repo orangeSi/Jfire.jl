@@ -61,11 +61,13 @@ wow, hello, wold ~  nice day!
 ... end fire
 ```
 
-#### Function parameter types:<br>
-&nbsp;&nbsp;support Int, Float32 or Float64, String(default)<br>
-&nbsp;&nbsp;support position arguments or optional keywords argument<br>
-&nbsp;&nbsp;not support Bool yet<br>
-&nbsp;&nbsp;not support --help yet<br>
+#### Support function parameter types:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Int, Float32 or Float64, String(default)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
+
+#### Not support function parameter types:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--help<br>
 
 
 
