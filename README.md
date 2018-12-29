@@ -1,21 +1,24 @@
 # Jfire
-### why Jfire ? <br>
+### Why Jfire ? <br>
 &nbsp;&nbsp;&nbsp;&nbsp;inspired by python-fire(https://github.com/google/python-fire) and Fire(https://github.com/ylxdzsw/Fire.jl) <br>
-### feature<br>
+### Feature<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1. only support fire Function or Module yet, then call only one funciton in command line. <br>
 
-#### thanks<br>
-&nbsp;&nbsp;&nbsp;&nbsp;thank the  people: I learned from https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995/7, after that, I tried to write Jfire. <br>
-#### only test in julia v1.02 yet. <br><br>
+#### Thanks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;thanks the  people: I learned from https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995/7, after that, I tried to write Jfire. <br>
+#### Dependence<br>
+```
+julia v1.02
+```
 
-#### usage<br>
+#### Usage<br>
 doc/myth.jl is an example call from Module
 ```
 include("../Jfire.jl")
 module myth
 
 export hello
-function hello(;name::String="sikaiwei", greet::String="how is the weather?")
+function hello(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
 	println("hello, $name. $greet")
 end
 
@@ -27,16 +30,16 @@ end
 ```
 then run command line like this:
 ```
-$ julia  doc/myth.jl hello --name 'myth' --greet 'what a good day!'
+$ julia  doc/myth.jl hello --name 'myth' --greet 'what a good day!' --number 3.0
 ... start fire
-parse args for Module
-hello, myth. what a good day!
+optional arguments: (name = "myth", greet = "what a good day!", number = 3.0)
+
+hello, myth. what a good day!. 3.0
 ... end fire
 ```
 <br> doc/func.jl is an example call form Function directly:
 ```
 include("../src/Jfire.jl")
-#using fire
 function myth_func(wow;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
 end
@@ -49,13 +52,20 @@ then run this:
 ```
 $ julia doc/func.jl  wow
 ... start fire
-assum parse args for Function
 wow, hello, sikaiwei ~ how is the weather?
 ... end fire
 
 $ julia doc/func.jl  wow --name wold --greet ' nice day! '
 ... start fire
-assum parse args for Function
 wow, hello, wold ~  nice day!
 ... end fire
 ```
+
+#### Function parameter types:<br>
+&nbsp;&nbsp;support Int, Float32 or Float64, String(default)
+&nbsp;&nbsp;support position arguments or optional keywords argument
+&nbsp;&nbsp;not support Bool yet
+&nbsp;&nbsp;not support --help yet
+
+
+

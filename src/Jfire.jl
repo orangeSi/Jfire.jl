@@ -6,7 +6,7 @@ function Fire(the_called)
 	printstyled("... start fire\n", color=:green)	
 	#kws = parse_args_kws(ARGS)
 	the_called_type = typeof(the_called)
-	need, kws = parse_args(ARGS, the_called_type)
+	need, kws = parse_args(ARGS, the_called_type, the_called)
 
 	if the_called_type  == Module
 		the_func = ARGS[1]
@@ -22,13 +22,17 @@ function Fire(the_called)
 end
 
 
-function parse_args(args, the_called_type)
+function parse_args(args, the_called_type, the_called)
 	if the_called_type == Module
-		println("parse args for Module")
-		#if length(args) < 1
-		#	error("sorry, parameter $args number should >=1")
-		#end
-		if occursin(r"^-" ,args[1])
+		#println("parse args for Module")
+		if length(args) < 1
+			error("sorry, you should specific a funciton name, not just a module name")
+		end
+		if occursin(r"^-?-help" ,args[1])
+			println("not support $(args[1]) yet")
+			get_help(the_called)
+			exit()
+		elseif occursin(r"^-?-" ,args[1])
 			error("sorry, should start with function name, not $(args[1])")
 		end
 		#need = ("orange","good day")
@@ -36,7 +40,7 @@ function parse_args(args, the_called_type)
 		return need, kws
 	#elseif the_called_type == Function
 	else
-		println("assum parse args for Function")
+		#println("assum parse args for Function")
 		#if length(args) < 1
 		#	error("sorry, parameter length should >=1 ")
 		#end
@@ -48,6 +52,24 @@ function parse_args(args, the_called_type)
 	end
 end
 
+function get_help(the_called)
+	if typeof(the_called) == Module
+		println("here")
+		funcs = names(the_called)
+		for i in firstindex(funcs):lastindex(funcs)
+			func = funcs[i]
+			the_type = typeof(getfield(the_called, func))
+			if the_type != Module
+				println(the_type)
+				println(Main.myth.hello)
+			end
+		end
+	else
+		println("dd")
+	end
+
+end
+#methods(the_called.hello) # it works too !
 
 function parse_kws(args)
 	need = param_keys = param_values = []
@@ -56,7 +78,7 @@ function parse_kws(args)
 	for (i,j) in enumerate(args)
 		if flag == 0
 			if ! occursin(r"^-", j)
-				push!(need, j)
+				push!(need, str2number(j))
 			else
 				flag = i
 			end
@@ -79,29 +101,49 @@ function parse_kws(args)
 	param_keys = [ Symbol(replace(args[i], '-' => "")) for i in 1:2:length(args)]
 
 	# gather value of parameter
-	param_values = [args[i] for i in 2:2:length(args)]
+	param_values = [str2number(args[i]) for i in 2:2:length(args)]
 		
 	kws = NamedTuple{tuple(param_keys...)}(tuple(param_values...)) # genearate keywords argument for function, ... mean unpack the array, convert array to tuple
+	if length(need) != 0
+		println("position arguments: $need")
+	end
+	if length(kws) != 0
+		println("optional arguments: $kws\n")
+	end
 	return need, kws
 end
 
-
+function str2number(str::String)
+	if occursin(r"^[\d]+$", str)
+		return parse(Int, str)
+	elseif occursin(r"^[\d\.]+$", str)
+		if Sys.WORD_SIZE == 64
+			return parse(Float64, str)
+		elseif Sys.WORD_SIZE == 32
+			return parse(Float32, str)
+		else
+			error("error: Sys.WORD_SIZE is $(Sys.WORD_SIZE) is not supported, only support 32 o r 64")
+		end
+	else
+		return str
+	end
+end
 
 
 function call_module(the_called::Module, the_func, need::Tuple, kws::NamedTuple)
 	funcs = names(the_called)
 	flag = 1
-	for i in firstindex(funcs):lastindex(funcs)-1
+	for i in firstindex(funcs):lastindex(funcs)
 		#println(typeof(i).name.mt.name)
 		func = funcs[i]
-		if string(func) == the_func
+
+		the_type = typeof(getfield(the_called, func))
+		if the_type != Module && string(func) == the_func
 			flag = 0
 			#println("match $(hello) $(func)")
 			#getfield(the_called, func)(;NamedTuple{(Symbol(hello_k1), )}((hello_w1, ))...) # it works!
 			#ins = Symbol(hello_k1) => hello_w1, Symbol("greet") => "how is today?" # it works too !
 			#ins = NamedTuple{(Symbol(hello_k1), Symbol("greet"))}((hello_w1, "hot is today")) # it works !
-			#println("need is $need")
-			#println("ksw is $kws")
 			getfield(the_called, func)(need...;kws...) # it works too !
 			#getfield(the_called, func)(;Symbol(hello_k1) => hello_w1, Symbol("greet") => "how is today?") # it works too !
 			#getfield(the_called, func)(;Symbol(hello_k1) = hello_w1) # it not works 
@@ -110,7 +152,7 @@ function call_module(the_called::Module, the_func, need::Tuple, kws::NamedTuple)
 	end
 
 	if flag == 1
-		error("sorry, not find function $hello in $the_called")
+		error("sorry, not find function $the_func in $the_called")
 	end
 	# thanks to https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995
 	#
