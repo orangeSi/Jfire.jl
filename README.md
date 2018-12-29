@@ -62,10 +62,10 @@ wow, hello, wold ~  nice day!
 ```
 
 #### Function parameter types:<br>
-&nbsp;&nbsp;support Int, Float32 or Float64, String(default)
-&nbsp;&nbsp;support position arguments or optional keywords argument
-&nbsp;&nbsp;not support Bool yet
-&nbsp;&nbsp;not support --help yet
+&nbsp;&nbsp;support Int, Float32 or Float64, String(default)<br>
+&nbsp;&nbsp;support position arguments or optional keywords argument<br>
+&nbsp;&nbsp;not support Bool yet<br>
+&nbsp;&nbsp;not support --help yet<br>
 
 
 
