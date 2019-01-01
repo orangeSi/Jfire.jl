@@ -60,7 +60,7 @@ $ julia doc/func.jl  wow --name wold --greet ' nice day! '
 wow, hello, wold ~  nice day!
 ... end fire
 ```
-
+<br>
 #### Support function parameter types:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Int, Float32 or Float64, String(default)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>

@@ -87,6 +87,9 @@ function parse_kws(args)
 	
 	need = tuple(need...)
 	if flag == 0
+		if length(need) != 0
+			println("position arguments: $need\n")
+		end
 		return need,NamedTuple{tuple()}(tuple())
 	end
 	args = args[flag:end]
