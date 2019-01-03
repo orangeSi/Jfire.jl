@@ -9,7 +9,6 @@
 ```
 julia v1.02
 ```
-<br>
 #### Usage<br>
 doc/myth.jl is an example call from Module:<br>
 ```
