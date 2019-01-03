@@ -49,7 +49,7 @@ function parse_args(args, the_called_type, the_called)
 		#	error("sorry, parameter length should >=1 ")
 		#end
 		#need = ("orange","good day")
-		if occursin(r"^-?-help" ,args[1])
+		if length(args) >=1 && occursin(r"^-?-help" ,args[1])
 			help(the_called)
 		end
 		need, kws = parse_kws(args)
