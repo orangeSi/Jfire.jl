@@ -29,12 +29,16 @@ function parse_args(args, the_called_type, the_called)
 			error("sorry, you should specific a funciton name, not just a module name")
 		end
 		if occursin(r"^-?-help" ,args[1])
-			println("not support $(args[1]) yet")
-			get_help(the_called)
+			println("you should first specific a function name then --help")
 			exit()
 		elseif occursin(r"^-?-" ,args[1])
 			error("sorry, should start with function name, not $(args[1])")
 		end
+
+		if length(args) >=2 && occursin(r"^-?-help" ,args[2])
+			help(getfield(the_called, Symbol(args[1])))
+		end
+
 		#need = ("orange","good day")
 		need, kws = parse_kws(args[2:end])
 		return need, kws
@@ -45,6 +49,9 @@ function parse_args(args, the_called_type, the_called)
 		#	error("sorry, parameter length should >=1 ")
 		#end
 		#need = ("orange","good day")
+		if occursin(r"^-?-help" ,args[1])
+			help(the_called)
+		end
 		need, kws = parse_kws(args)
 		return need, kws
 	#else
@@ -78,7 +85,7 @@ function parse_kws(args)
 	for (i,j) in enumerate(args)
 		if flag == 0
 			if ! occursin(r"^-", j)
-				push!(need, str2number(j))
+				push!(need, convert_type(j))
 			else
 				flag = i
 			end
@@ -104,7 +111,7 @@ function parse_kws(args)
 	param_keys = [ Symbol(replace(args[i], '-' => "")) for i in 1:2:length(args)]
 
 	# gather value of parameter
-	param_values = [str2number(args[i]) for i in 2:2:length(args)]
+	param_values = [convert_type(args[i]) for i in 2:2:length(args)]
 		
 	kws = NamedTuple{tuple(param_keys...)}(tuple(param_values...)) # genearate keywords argument for function, ... mean unpack the array, convert array to tuple
 	if length(need) != 0
@@ -114,6 +121,22 @@ function parse_kws(args)
 		println("optional arguments: $kws\n")
 	end
 	return need, kws
+end
+
+function convert_type(str::String)
+	m = match(r"^([^:]*)::(.*)", str)
+	if m === nothing
+		return str
+	end
+	if m[1] == "string" ||  m[1] == "String"
+		return string(m[2])
+	end
+	try
+		the_type = getfield(Main, Symbol(m[1]))
+		return parse(the_type, m[2])
+	catch
+		error("error: $(m[1]) in $str is not support by julia Main Module")
+	end
 end
 
 function str2number(str::String)
@@ -165,7 +188,17 @@ function call_function(the_called::Function, need::Tuple, kws::NamedTuple)
 	the_called(need...;kws...)
 end
 
-
+function help(func::Function)
+	vinfo = code_lowered(func)
+	vinfo_type = code_typed(func)
+	println(vinfo_type)
+	println("\n")
+	println(split(string(vinfo[1]), r"Main.:")[end])
+	println("\n")
+	println(vinfo[1].slotnames)
+	println(func.kwargs)
+	error()
+end
 
 
 end

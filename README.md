@@ -30,9 +30,9 @@ end
 ```
 then run command line like this:
 ```
-$ julia  doc/myth.jl hello --name 'myth' --greet 'what a good day!' --number 3.0
+$ julia  doc/myth.jl hello --name myth --greet 'what a good day!' --number Float32::3
 ... start fire
-optional arguments: (name = "myth", greet = "what a good day!", number = 3.0)
+optional arguments: (name = "myth", greet = "what a good day!", number = 3.0f0)
 
 hello, myth. what a good day!. 3.0
 ... end fire
@@ -52,21 +52,25 @@ then run this:
 ```
 $ julia doc/func.jl  wow
 ... start fire
+position arguments: ("wow",)
+
 wow, hello, sikaiwei ~ how is the weather?
 ... end fire
 
 $ julia doc/func.jl  wow --name wold --greet ' nice day! '
 ... start fire
+position arguments: ("wow",)
+optional arguments: (name = "wold", greet = " nice day! ")
+
 wow, hello, wold ~  nice day!
 ... end fire
 ```
 <br>
 #### Support function parameter types:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Int, Float32 or Float64, String(default)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default is String, but you can specify the type, example --parameter Int::32 , support all julia build-in type, like Int, Float32,Float64,etc<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
 
 #### Not support function parameter types:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Bool<br>
 &nbsp;&nbsp;&nbsp;&nbsp;--help<br>
 
 
