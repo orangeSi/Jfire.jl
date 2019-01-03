@@ -40,7 +40,7 @@ optional arguments: (name = "myth", greet = "what a good day!", number = 3.0f0)
 hello, myth. what a good day!. 3.0
 ... end fire
 ```
-<br> doc/func.jl is an example call form Function directly:
+doc/func.jl is an example call form Function directly:
 ```
 using Jfire
 function myth_func(wow;name::String="sikaiwei", greet::String="how is the weather?")
@@ -76,6 +76,3 @@ wow, hello, wold ~  nice day!
 
 #### Not support function parameter types:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;--help<br>
-
-
-
