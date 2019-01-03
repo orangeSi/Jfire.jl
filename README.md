@@ -39,7 +39,7 @@ hello, myth. what a good day!. 3.0
 doc/func.jl is an example call form Function directly:<br>
 ```
 using Jfire
-function myth_func(wow;name::String="sikaiwei", greet::String="how is the weather?")
+function myth_func(wow::String;name::String="sikaiwei", greet::String="how is the weather?", number::Int=8)
 	println("$wow, hello, $name ~ $greet")
 end
 
