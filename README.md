@@ -14,7 +14,8 @@ julia v1.02
 #### Usage<br>
 doc/myth.jl is an example call from Module
 ```
-include("../Jfire.jl")
+#include("../Jfire.jl")
+using Jfire
 module myth
 
 export hello
@@ -39,7 +40,7 @@ hello, myth. what a good day!. 3.0
 ```
 <br> doc/func.jl is an example call form Function directly:
 ```
-include("../src/Jfire.jl")
+using Jfire
 function myth_func(wow;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
 end
@@ -65,9 +66,10 @@ optional arguments: (name = "wold", greet = " nice day! ")
 wow, hello, wold ~  nice day!
 ... end fire
 ```
-<br>
+<br><br>
+
 #### Support function parameter types:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;default is String, but you can specify the type, example --parameter Int::32 , support julia build-in type which is argument of parse() and string(), like Int,Float32,Float64,etc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default is String,you also can specify the type, like --parameter Int::32 , support julia build-in type which is argument of parse(), like Int,Float32,Float64,etc<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
 
 #### Not support function parameter types:<br>
