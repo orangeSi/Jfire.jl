@@ -67,7 +67,7 @@ wow, hello, wold ~  nice day!
 ```
 <br>
 #### Support function parameter types:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;default is String, but you can specify the type, example --parameter Int::32 , support all julia build-in type, like Int, Float32,Float64,etc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default is String, but you can specify the type, example --parameter Int::32 , support julia build-in type which is argument of parse() and string(), like Int,Float32,Float64,etc<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
 
 #### Not support function parameter types:<br>
