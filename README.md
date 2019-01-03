@@ -1,16 +1,18 @@
 # Jfire
 ### Why Jfire ? <br>
 &nbsp;&nbsp;&nbsp;&nbsp;inspired by python-fire(https://github.com/google/python-fire) and Fire(https://github.com/ylxdzsw/Fire.jl) <br>
+<br>
 ### Feature<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1. only support fire Function or Module yet, then call only one funciton in command line. <br>
-
+<br>
 #### Thanks<br>
 &nbsp;&nbsp;&nbsp;&nbsp;thanks the  people: I learned from https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995/7, after that, I tried to write Jfire. <br>
+<br>
 #### Dependence<br>
 ```
 julia v1.02
 ```
-
+<br>
 #### Usage<br>
 doc/myth.jl is an example call from Module
 ```
@@ -69,7 +71,7 @@ wow, hello, wold ~  nice day!
 <br><br>
 
 #### Support function parameter types:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;default is String,you also can specify the type, like --parameter Int::32 , support julia build-in type which is argument of parse(), like Int,Float32,Float64,etc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default is String,you also can specify the type, like --parameter Int::32, support julia build-in type which is argument of parse(), like Int,Float32,Float64,etc<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
 
 #### Not support function parameter types:<br>
