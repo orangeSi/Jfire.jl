@@ -9,7 +9,7 @@
 ```
 julia v1.02
 ```
-#### Usage<br>
+<br>#### Usage<br>
 doc/myth.jl is an example call from Module:<br>
 ```
 #include("../Jfire.jl")
@@ -64,8 +64,7 @@ optional arguments: (name = "wold", greet = " nice day! ")
 wow, hello, wold ~  nice day!
 ... end fire
 ```
-<br><br>
-
+<br>
 #### Support function parameter types:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;default is String,you also can specify the type, like --parameter Int::32, support julia build-in type which is argument of parse(), like Int,Float32,Float64,etc<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position arguments or optional keywords argument<br>
