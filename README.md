@@ -14,7 +14,7 @@ julia v1.02
 ```
 <br>
 #### Usage<br>
-doc/myth.jl is an example call from Module
+doc/myth.jl is an example call from Module:<br>
 ```
 #include("../Jfire.jl")
 using Jfire
@@ -31,7 +31,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	Jfire.Fire(myth)
 end
 ```
-then run command line like this:
+then run command line like this:<br>
 ```
 $ julia  doc/myth.jl hello --name myth --greet 'what a good day!' --number Float32::3
 ... start fire
@@ -40,7 +40,7 @@ optional arguments: (name = "myth", greet = "what a good day!", number = 3.0f0)
 hello, myth. what a good day!. 3.0
 ... end fire
 ```
-doc/func.jl is an example call form Function directly:
+doc/func.jl is an example call form Function directly:<br>
 ```
 using Jfire
 function myth_func(wow;name::String="sikaiwei", greet::String="how is the weather?")
@@ -51,7 +51,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	Jfire.Fire(myth_func)
 end
 ```
-then run this:
+then run this:<br>
 ```
 $ julia doc/func.jl  wow
 ... start fire
