@@ -14,6 +14,7 @@ julia> add Jfire # need julia 0.7.0+
 ```
 julia 0.7.0/1.0.3/1.1.0-rc1
 ```
+
 #### Usage<br>
 doc/myth.jl is an example call from Module:<br>
 ```
