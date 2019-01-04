@@ -34,3 +34,5 @@ exit
 # ......
 # after this will remember the password
 
+# 
+# git remote set-url origin https://github.com/orangeSi/Jfire.jl.git
