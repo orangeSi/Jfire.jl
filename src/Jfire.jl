@@ -4,7 +4,6 @@ export Fire
 
 function Fire(the_called)
 	printstyled("... start fire\n", color=:green)	
-	#kws = parse_args_kws(ARGS)
 	the_called_type = typeof(the_called)
 	need, kws = parse_args(ARGS, the_called_type, the_called)
 

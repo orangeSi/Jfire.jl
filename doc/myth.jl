@@ -1,5 +1,5 @@
 
-include("../src/Jfire.jl")
+using Jfire
 
 module myth
 

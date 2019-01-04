@@ -4,7 +4,7 @@
 #### Install<br>
 ```
 julia> ] 
-julia> add Jfire ## need julia v1.0.2
+julia> add Jfire # need julia 0.7.0+
 ```
 #### Feature<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1. only support fire Function or Module yet, then call only one funciton in command line. <br>
@@ -12,12 +12,11 @@ julia> add Jfire ## need julia v1.0.2
 &nbsp;&nbsp;&nbsp;&nbsp;thanks the  people: I learned from https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995/7, after that, I tried to write Jfire. <br>
 #### Dependence<br>
 ```
-julia v1.0.2
+julia 0.7.0/1.0.3/1.1.0-rc1
 ```
 #### Usage<br>
 doc/myth.jl is an example call from Module:<br>
 ```
-#include("../Jfire.jl")
 using Jfire
 module myth
 
