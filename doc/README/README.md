@@ -7,68 +7,118 @@ julia> ]
 julia> add Jfire # need julia 0.7.0+
 ```
 #### Feature<br>
-&nbsp;&nbsp;&nbsp;&nbsp;1. only support fire Function or Module yet, then call only one funciton in command line. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;1. support call single/multiple Function or single/multiple Module. <br>
 #### Thanks<br>
 &nbsp;&nbsp;&nbsp;&nbsp;thanks the  people: I learned from https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995/7, after that, I tried to write Jfire. <br>
 #### Dependence<br>
 ```
 julia 0.7.0/1.0.3/1.1.0-rc1
 ```
+
 #### Usage<br>
-doc/myth.jl is an example call from Module:<br>
+doc/myth.jl is an example call from single Module:<br>
 ```
 using Jfire
-module myth
 
+module myth
 export hello
 function hello(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
-	println("hello, $name. $greet")
+	println("hello, $name. $greet. $number")
 end
-
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth)
+	Jfire.Fire(myth, time=true, color=:yellow)
 end
 ```
-then run command line like this:<br>
+then run :
 ```
-$ julia  doc/myth.jl hello --name myth --greet 'what a good day!' --number Float32::3
-... start fire
-optional arguments: (name = "myth", greet = "what a good day!", number = 3.0f0)
+$ julia myth.jl hello --name world
+2019-01-09T17:01:08.764 ... start fire
+optional arguments: (name = "world",)
 
-hello, myth. what a good day!. 3.0
-... end fire
+hello, world. how is the weather?. 3
+  0.049488 seconds (65.33 k allocations: 3.304 MiB, 17.40% gc time)
+2019-01-09T17:01:09.248 ... end fire
 ```
-doc/func.jl is an example call form Function directly:<br>
+doc/myths.jl is an example call from multiple Module:<br>
 ```
 using Jfire
-function myth_func(wow::String;name::String="sikaiwei", greet::String="how is the weather?", number::Int=8)
+
+module myth1
+export hello1
+function hello1(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
+	println("hello, $name. $greet. $number")
+end
+end
+
+module myth2
+export hello2
+function hello2(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
+	println("hello, $name. $greet. $number")
+end
+end
+
+if abspath(PROGRAM_FILE) == @__FILE__
+	ms = (myth1, myth2)
+	Jfire.Fire(ms)
+end
+```
+then run :
+```
+$ julia myths.jl  myth1.hello1 --name world
+2019-01-09T17:01:10.347 ... start fire
+optional arguments: (name = "world",)
+
+hello, world. how is the weather?. 3
+2019-01-09T17:01:10.773 ... end fire
+```
+doc/func.jl is an example call from single Function:<br>
+```
+using Jfire
+function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
+	println("$wow, hello, $name ~ $greet")
+end
+if abspath(PROGRAM_FILE) == @__FILE__
+	Jfire.Fire(myth_func1)
+end
+```
+then run :
+```
+$ julia  func.jl wow
+2019-01-09T17:01:11.728 ... start fire
+position arguments: ("wow",)
+
+wow, hello, sikaiwei ~ how is the weather?
+2019-01-09T17:01:12.152 ... end fire
+```
+doc/func.jl is an example call from multiple Function:<br>
+```
+using Jfire
+function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
+	println("$wow, hello, $name ~ $greet")
+end
+function myth_func2(wow;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth_func)
+	Jfire.Fire((myth_func1,myth_func2), time=true, color=:yellow)
 end
 ```
-then run this:<br>
+then run :
 ```
-$ julia doc/func.jl  wow
-... start fire
-position arguments: ("wow",)
+$ julia  funcs.jl  myth_func1 well --greet 'nice day'
+2019-01-09T17:01:13.368 ... start fire
+position arguments: ("well",)
+optional arguments: (greet = "nice day",)
 
-wow, hello, sikaiwei ~ how is the weather?
-... end fire
-
-$ julia doc/func.jl  wow --name wold --greet ' nice day! '
-... start fire
-position arguments: ("wow",)
-optional arguments: (name = "wold", greet = " nice day! ")
-
-wow, hello, wold ~  nice day!
-... end fire
+well, hello, sikaiwei ~ nice day
+  0.009121 seconds (10.47 k allocations: 596.311 KiB)
+2019-01-09T17:01:13.942 ... end fire
 ```
 <br>
+detail test script is doc/test.sh<br>
 
 #### Support function parameter types:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;default is String,you also can specify the type, like --parameter Int::32, support julia build-in type which is argument of parse(), like Int,Float32,Float64,etc<br>
@@ -76,3 +126,4 @@ wow, hello, wold ~  nice day!
 
 #### Not support function parameter types:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;--help<br>
+

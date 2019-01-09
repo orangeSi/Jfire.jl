@@ -3,6 +3,6 @@ function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weath
 	println("$wow, hello, $name ~ $greet")
 end
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire((myth_func1))
+	Jfire.Fire(myth_func1)
 end
 

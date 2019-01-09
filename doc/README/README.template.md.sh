@@ -1,3 +1,4 @@
+cat README.template.md.header
 
 jl=myth.jl
 echo "doc/myth.jl is an example call from single Module:<br>"
@@ -63,3 +64,4 @@ echo "\`\`\`
 $res
 \`\`\`"
 
+cat README.template.md.tail
