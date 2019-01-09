@@ -50,7 +50,7 @@ $res
 
 
 jl=funcs.jl
-echo "doc/func.jl is an example call from multiple Function:<br>"
+echo "doc/funcs.jl is an example call from multiple Function:<br>"
 tmp=`cat $jl`
 echo "\`\`\`
 $tmp

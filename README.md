@@ -92,7 +92,7 @@ position arguments: ("wow",)
 wow, hello, sikaiwei ~ how is the weather?
 2019-01-09T17:01:12.152 ... end fire
 ```
-doc/func.jl is an example call from multiple Function:<br>
+doc/funcs.jl is an example call from multiple Function:<br>
 ```
 using Jfire
 function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
