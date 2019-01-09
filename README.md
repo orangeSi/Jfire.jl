@@ -34,12 +34,12 @@ end
 then run :
 ```
 $ julia myth.jl hello --name world
-2019-01-09T16:37:32.302 ... start fire
+2019-01-09T17:01:08.764 ... start fire
 optional arguments: (name = "world",)
 
 hello, world. how is the weather?. 3
-  0.057381 seconds (65.33 k allocations: 3.304 MiB, 16.71% gc time)
-2019-01-09T16:37:32.867 ... end fire
+  0.049488 seconds (65.33 k allocations: 3.304 MiB, 17.40% gc time)
+2019-01-09T17:01:09.248 ... end fire
 ```
 doc/myths.jl is an example call from multiple Module:<br>
 ```
@@ -67,11 +67,11 @@ end
 then run :
 ```
 $ julia myths.jl  myth1.hello1 --name world
-2019-01-09T16:37:34.934 ... start fire
+2019-01-09T17:01:10.347 ... start fire
 optional arguments: (name = "world",)
 
 hello, world. how is the weather?. 3
-2019-01-09T16:37:35.467 ... end fire
+2019-01-09T17:01:10.773 ... end fire
 ```
 doc/func.jl is an example call from single Function:<br>
 ```
@@ -80,17 +80,17 @@ function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weath
 	println("$wow, hello, $name ~ $greet")
 end
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire((myth_func1))
+	Jfire.Fire(myth_func1)
 end
 ```
 then run :
 ```
 $ julia  func.jl wow
-2019-01-09T16:37:37.632 ... start fire
+2019-01-09T17:01:11.728 ... start fire
 position arguments: ("wow",)
 
 wow, hello, sikaiwei ~ how is the weather?
-2019-01-09T16:37:38.189 ... end fire
+2019-01-09T17:01:12.152 ... end fire
 ```
 doc/func.jl is an example call from multiple Function:<br>
 ```
@@ -109,13 +109,13 @@ end
 then run :
 ```
 $ julia  funcs.jl  myth_func1 well --greet 'nice day'
-2019-01-09T16:37:40.052 ... start fire
+2019-01-09T17:01:13.368 ... start fire
 position arguments: ("well",)
 optional arguments: (greet = "nice day",)
 
 well, hello, sikaiwei ~ nice day
-  0.013463 seconds (10.47 k allocations: 596.311 KiB)
-2019-01-09T16:37:40.831 ... end fire
+  0.009121 seconds (10.47 k allocations: 596.311 KiB)
+2019-01-09T17:01:13.942 ... end fire
 ```
 <br>
 detail test script is doc/test.sh<br>
