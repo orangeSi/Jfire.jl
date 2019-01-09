@@ -1,11 +1,8 @@
-
 using Jfire
-
-function myth_func(wow::String;name::String="sikaiwei", greet::String="how is the weather?", number::Int=8)
+function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
 end
-
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth_func)
+	Jfire.Fire((myth_func1))
 end
 

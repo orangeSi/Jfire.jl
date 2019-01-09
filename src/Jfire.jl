@@ -1,63 +1,127 @@
+__precompile__()
+
+
 module Jfire
 
 export Fire
 
-function Fire(the_called)
-	printstyled("... start fire\n", color=:green)	
-	the_called_type = typeof(the_called)
-	need, kws = parse_args(ARGS, the_called_type, the_called)
+using Dates
 
-	if the_called_type  == Module
+function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green)
+	printstyled("$(now()) ... start fire\n", color=color)	
+	the_called_type = check_called_type(the_called)
+	need, kws, the_called = parse_args(ARGS, the_called_type, the_called)
+	
+	if the_called_type  == "module"
 		the_func = ARGS[1]
-		call_module(the_called, the_func, need, kws)
-	#elseif the_called_type == Function
+		if time
+			@time call_module(the_called, the_func, need, kws)
+		else
+			call_module(the_called, the_func, need, kws)
+		end
+	elseif the_called_type == "modules"
+		the_func = replace(ARGS[1], r"^.*\."=>"")
+		if time
+			@time call_module(the_called, the_func, need, kws)
+		else
+			call_module(the_called, the_func, need, kws)
+		end
+	elseif the_called_type == "function" || the_called_type == "functions" 
+		if time
+			@time call_function(the_called, need, kws)
+		else
+			call_function(the_called, need, kws)
+		end
 	else
-		call_function(the_called, need, kws)
-	#else
-		#error("sorry, not support $the_called_type yet, only Module or Funciton")
+		error("sorry, not support the_called_type = $the_called_type for $the_called yet")
 	end
-	printstyled("... end fire\n", color=:green)	
+
+	printstyled("$(now()) ... end fire\n", color=color)	
 
 end
 
+function check_called_type(the_called::Union{Function, Module, Tuple})
+	the_called_type = typeof(the_called)
+	if the_called_type == Module
+		the_called_type = "module"
+	elseif occursin(r"^Tuple{Module", string(the_called_type))
+		the_called_type = "modules"
+	elseif occursin(r"^typeof", string(the_called_type))
+		the_called_type = "function"
+	elseif occursin(r"^Tuple{typeof", string(the_called_type))
+		the_called_type = "functions"
+	else
+		error("sorry, not support the_called_type = $the_called_type for $the_called yet")
+	end
+	return the_called_type
+end
+
+function module_help(the_called::Module,args)
+	if length(args) < 1
+		error("sorry, you should specific a funciton name, not just a module name")
+	end
+	if occursin(r"^-?-help" ,args[1])
+		error("you should first specific a function name then --help")
+	elseif occursin(r"^-?-" ,args[1])
+		error("sorry, should start with function name, not $(args[1])")
+	end
+	if length(args) >=2 && occursin(r"^-?-help" ,args[2])
+		help(getfield(the_called, Symbol(args[1])))
+	end
+	return 1
+end
 
 function parse_args(args, the_called_type, the_called)
-	if the_called_type == Module
-		#println("parse args for Module")
-		if length(args) < 1
-			error("sorry, you should specific a funciton name, not just a module name")
-		end
-		if occursin(r"^-?-help" ,args[1])
-			println("you should first specific a function name then --help")
-			exit()
-		elseif occursin(r"^-?-" ,args[1])
-			error("sorry, should start with function name, not $(args[1])")
-		end
-
-		if length(args) >=2 && occursin(r"^-?-help" ,args[2])
-			help(getfield(the_called, Symbol(args[1])))
-		end
-
-		#need = ("orange","good day")
+	if the_called_type == "module"
+		module_help(the_called, args)
 		need, kws = parse_kws(args[2:end])
-		return need, kws
-	#elseif the_called_type == Function
-	else
-		#println("assum parse args for Function")
-		#if length(args) < 1
-		#	error("sorry, parameter length should >=1 ")
-		#end
-		#need = ("orange","good day")
-		if length(args) >=1 && occursin(r"^-?-help" ,args[1])
-			help(the_called)
+		return need, kws, the_called
+	elseif the_called_type == "modules"
+		if length(args) == 0
+			error("error, you shold give Module and function name")
 		end
+		if ! occursin(r"\.", args[1])
+			error("format should like: module_name.fuction_name , not $(args[1]) for $the_called")
+		end
+		for m in the_called
+			the_type = typeof(m)
+			if the_type != Module
+				error("error, $m is not a Module name")
+			end
+			if replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
+				module_help(m, args)
+				need, kws = parse_kws(args[2:end])
+				return need, kws, m
+			end
+		end
+		error("error: cannot find module $(args[1])")
+	elseif the_called_type == "function"
+		function_help(args, the_called)
 		need, kws = parse_kws(args)
-		return need, kws
-	#else
-		#error("sorry, not support $the_called_type yet, only Module or Funciton")
+		return need, kws, the_called
+	elseif the_called_type == "functions"
+		if length(args) == 0
+			error("error, you shold give function name")
+		end
+		for func in the_called
+			if string(func) == args[1]
+				function_help(args, func)
+				need, kws = parse_kws(args[2:end])
+				return need, kws, func
+			end
+		end
+		error("error, cannot find Function $(args[1]) in $the_called")
+	else
+		error("sorry, not support $the_called_type yet, only Module or Funciton or tuple like (Module1,Module2)")
 	end
 end
 
+function function_help(args, the_called::Function)
+	if length(args) >=1 && occursin(r"^-?-help" ,args[1])
+		help(the_called)
+	end
+
+end
 function get_help(the_called)
 	if typeof(the_called) == Module
 		println("here")
@@ -156,12 +220,12 @@ end
 
 
 function call_module(the_called::Module, the_func, need::Tuple, kws::NamedTuple)
+	the_func = replace(the_func, r"^.*\."=>"")
 	funcs = names(the_called)
 	flag = 1
 	for i in firstindex(funcs):lastindex(funcs)
 		#println(typeof(i).name.mt.name)
 		func = funcs[i]
-
 		the_type = typeof(getfield(the_called, func))
 		if the_type != Module && string(func) == the_func
 			flag = 0
