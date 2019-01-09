@@ -8,6 +8,7 @@ export Fire
 using Dates
 
 function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green)
+	printstyled("Jfire version 0.0.9\n",color=color)
 	printstyled("$(now()) ... start fire\n", color=color)	
 	the_called_type = check_called_type(the_called)
 	need, kws, the_called = parse_args(ARGS, the_called_type, the_called)
