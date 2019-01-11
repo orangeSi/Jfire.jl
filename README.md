@@ -34,12 +34,13 @@ end
 then run :
 ```
 $ julia myth.jl hello --name world
-2019-01-09T17:01:08.764 ... start fire
+[33mJfire version 0.0.9[39m
+[33m2019-01-11T10:28:24.576 ... start fire[39m
 optional arguments: (name = "world",)
 
 hello, world. how is the weather?. 3
-  0.049488 seconds (65.33 k allocations: 3.304 MiB, 17.40% gc time)
-2019-01-09T17:01:09.248 ... end fire
+  0.056134 seconds (66.74 k allocations: 3.364 MiB, 12.26% gc time)
+[33m2019-01-11T10:28:25.089 ... end fire[39m
 ```
 doc/myths.jl is an example call from multiple Module:<br>
 ```
@@ -67,11 +68,12 @@ end
 then run :
 ```
 $ julia myths.jl  myth1.hello1 --name world
-2019-01-09T17:01:10.347 ... start fire
+[32mJfire version 0.0.9[39m
+[32m2019-01-11T10:28:26.397 ... start fire[39m
 optional arguments: (name = "world",)
 
 hello, world. how is the weather?. 3
-2019-01-09T17:01:10.773 ... end fire
+[32m2019-01-11T10:28:26.889 ... end fire[39m
 ```
 doc/func.jl is an example call from single Function:<br>
 ```
@@ -86,11 +88,12 @@ end
 then run :
 ```
 $ julia  func.jl wow
-2019-01-09T17:01:11.728 ... start fire
+[32mJfire version 0.0.9[39m
+[32m2019-01-11T10:28:28.179 ... start fire[39m
 position arguments: ("wow",)
 
 wow, hello, sikaiwei ~ how is the weather?
-2019-01-09T17:01:12.152 ... end fire
+[32m2019-01-11T10:28:28.538 ... end fire[39m
 ```
 doc/funcs.jl is an example call from multiple Function:<br>
 ```
@@ -109,13 +112,14 @@ end
 then run :
 ```
 $ julia  funcs.jl  myth_func1 well --greet 'nice day'
-2019-01-09T17:01:13.368 ... start fire
+[33mJfire version 0.0.9[39m
+[33m2019-01-11T10:28:30.028 ... start fire[39m
 position arguments: ("well",)
 optional arguments: (greet = "nice day",)
 
 well, hello, sikaiwei ~ nice day
-  0.009121 seconds (10.47 k allocations: 596.311 KiB)
-2019-01-09T17:01:13.942 ... end fire
+  0.007997 seconds (10.49 k allocations: 596.982 KiB)
+[33m2019-01-11T10:28:30.62 ... end fire[39m
 ```
 <br>
 detail test script is doc/test.sh<br>
