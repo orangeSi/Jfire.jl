@@ -8,12 +8,11 @@ export Fire
 using Dates
 
 
-function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green)
-	io = IOContext(stdout, :color => true)
-	printstyled(io, "Jfire version 0.0.9\n",color=color)
-	printstyled(io, "$(now()) ... start fire\n", color=color)	
-	the_called_type = check_called_type(the_called)
-	need, kws, the_called = parse_args(ARGS, the_called_type, the_called)
+function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green, info::Bool=true)
+	show_info(info, color, true)
+	the_called_type = check_called_type(the_called, ARGS)
+	help_info(the_called, the_called_type, ARGS)
+	need, kws, the_called = parse_args(ARGS, the_called_type, the_called, info, color)
 	
 	if the_called_type  == "module"
 		the_func = ARGS[1]
@@ -38,46 +37,96 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 	else
 		myexit("sorry, not support the_called_type = $the_called_type for $the_called yet")
 	end
-
-	printstyled(io, "$(now()) ... end fire\n", color=color)	
-
+	show_info(info, color, false)
 end
 
-function check_called_type(the_called::Union{Function, Module, Tuple})
+function show_info(info::Bool=true, color::Symbol=:green, head::Bool=true)
+	if info && head
+		io = IOContext(stdout, :color => true)
+		printstyled(io, "Jfire version 0.0.9\n",color=color)
+		printstyled(io, "$(now()) ... start fire\n", color=color)	
+	end
+	if info && head == false
+		io = IOContext(stdout, :color => true)
+		printstyled(io, "$(now()) ... end fire\n", color=color)	
+	end
+end
+
+function help_info(the_called::Union{Function, Module, Tuple}, the_called_type::String, args::Array)
+	#println("22")
+	if occur_help(args[end]) == false
+		return
+	end
+	if the_called_type == "module"
+		module_help(the_called, args, the_called_type)
+	elseif the_called_type == "modules"
+		for m in the_called
+			#println("1")
+			module_help(m, args, the_called_type)
+			#println("3")
+		end
+	elseif the_called_type == "function"
+		function_help(args, the_called)
+	elseif the_called_type == "functions"
+		for func in the_called
+			function_help(args, func)
+		end
+	else
+		myexit("sorry, not support $the_called_type")
+	end
+	#println("isis")
+	if occur_help(args[end])
+		exit()
+	end
+end
+
+
+function check_called_type(the_called::Union{Function, Module, Tuple},args::Array)
 	the_called_type = typeof(the_called)
 	if the_called_type == Module
 		the_called_type = "module"
+		if length(args) == 0
+			myexit("error, need to give a Function name in module $the_called")
+		end
 	elseif occursin(r"^Tuple{Module", string(the_called_type))
 		the_called_type = "modules"
+		if length(args) == 0
+			myexit("error, need to give a Function name in modules $the_called")
+		end
 	elseif occursin(r"^typeof", string(the_called_type))
 		the_called_type = "function"
 	elseif occursin(r"^Tuple{typeof", string(the_called_type))
 		the_called_type = "functions"
+		if length(args) == 0
+			myexit("error, need to give a Function name in functions $the_called")
+		end
 	else
 		myexit("sorry, not support the_called_type = $the_called_type for $the_called yet")
 	end
 	return the_called_type
 end
 
-function module_help(the_called::Module, args::Array{String}, exit_flag::Bool=true)
-	#if length(args) < 1
-	#	myexit("sorry, you should specific a funciton name, not just a module name")
-	#end
-	#if occursin(r"^-?-help" ,args[1])
-	#	myexit("you should first specific a module name then --help")
-	#elseif occursin(r"^-?-" ,args[1])
-	#	myexit("sorry, should start with function name, not $(args[1])")
-	#end
+function module_help(the_called::Module, args::Array{String}, the_called_type::String="")
+	the_name = replace(string(the_called), r"^Main\."=>"")
+	printstyled("\nModule $the_name\n", color=:green)
 	if length(args) >=1 && occur_help(args[1])
-		println("$the_called --help")
-		show_function_info(getfield(the_called, Symbol(args[1])))
+		funcs = names(the_called)
+		for i in firstindex(funcs):lastindex(funcs)
+			func = funcs[i]
+			the_type = typeof(getfield(the_called, func))
+			if the_type != Module
+				show_function_info(getfield(the_called, Symbol(func))) 
+			end
+		end
 	end
 	if length(args) >=2 && occur_help(args[2])
-		println("$the_called --help")
-		func = replace(args[1], r"^.*\."=>"")
-		show_function_info(getfield(the_called, Symbol(func)))
+		if occursin(r"\.", args[1])
+			func = replace(args[1], r"^.*\."=>"")
+			show_function_info(getfield(the_called, Symbol(func)))
+		end
 	end
 end
+
 function occur_help(str::String)
 	if occursin(r"^-?-help$", str) || occursin(r"^-?-[Hh]$", str)
 		return true
@@ -86,10 +135,9 @@ function occur_help(str::String)
 	end
 end
 
-function parse_args(args::Array{String}, the_called_type, the_called)
+function parse_args(args::Array{String}, the_called_type::String, the_called::Union{Function, Module, Tuple}, info::Bool=true, color::Symbol=:green)
 	if the_called_type == "module"
-		module_help(the_called, args, true)
-		need, kws = parse_kws(args[2:end])
+		need, kws = parse_kws(args[2:end], info)
 		return need, kws, the_called
 	elseif the_called_type == "modules"
 		if length(args) >=1 && ! occursin(r"\.", args[1]) && ! occur_help(args[1])
@@ -100,31 +148,33 @@ function parse_args(args::Array{String}, the_called_type, the_called)
 			if the_type != Module
 				myexit("error, $m is not a Module name")
 			end
-			module_help(m, args, false)
-			if replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
-				module_help(m, args, true)
-				need, kws = parse_kws(args[2:end])
+			module_name = replace(string(m), r"^Main\."=>"")
+			if replace(args[1], r"\..*"=>"") == module_name && info
+				printstyled("\nmodule $module_name\n", color=color)
+			end
+			if length(args)>=1 &&  replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
+				need, kws = parse_kws(args[2:end], info)
 				return need, kws, m
 			end
 		end
-		if ! occur_help(args[1])
-			myexit("error: cannot find module $(args[1]), only support $the_called")
-		else
-			exit()
+		if length(args)>=1
+			if ! occur_help(args[1])
+				if length(args)>=2 && occur_help(args[2])
+					exit()
+				end
+				myexit("error: cannot find module $(args[1]), only support $the_called")
+			end
 		end
 	elseif the_called_type == "function"
-		function_help(args, the_called, true)
-		need, kws = parse_kws(args)
+		need, kws = parse_kws(args, info)
 		return need, kws, the_called
 	elseif the_called_type == "functions"
 		if length(args) == 0
 			myexit("error, you shold give function name")
 		end
 		for func in the_called
-			function_help(args, func, false)
 			if string(func) == args[1]
-				function_help(args, func, true)
-				need, kws = parse_kws(args[2:end])
+				need, kws = parse_kws(args[2:end], info)
 				return need, kws, func
 			end
 		end
@@ -146,23 +196,22 @@ function myexit(info::String)
 	#@warn info # https://docs.julialang.org/en/v1/stdlib/Logging/index.html
 end
 
-function function_help(args::Array{String}, the_called::Function, exit_flag::Bool=true)
+function function_help(args::Array{String}, the_called::Function)
+	the_name = string(the_called)
+	printstyled("\nFunction $the_name\n", color=:green)
 	if length(args) >=1 && occur_help(args[1])
-		show_function_info(the_called, exit_flag)
+		show_function_info(the_called)
 	end
 end
 
-function show_function_info(func::Function, exit_flag::Bool)
-	dump(func)
+function show_function_info(func::Function)
+	#dump(func)
 	println(methods(func))
-	if exit_flag
-		exit()
-	end
 end
 
 function get_help(the_called)
 	if typeof(the_called) == Module
-		println("here")
+		#println("here")
 		funcs = names(the_called)
 		for i in firstindex(funcs):lastindex(funcs)
 			func = funcs[i]
@@ -179,7 +228,7 @@ function get_help(the_called)
 end
 #methods(the_called.hello) # it works too !
 
-function parse_kws(args::Array{String})
+function parse_kws(args::Array{String}, info::Bool=true)
 	need = param_keys = param_values = []
 	flag = 0
 	# gather must need parameter
@@ -195,13 +244,13 @@ function parse_kws(args::Array{String})
 	
 	need = tuple(need...)
 	if flag == 0
-		if length(need) != 0
+		if length(need) != 0 && info
 			println("position arguments: $need\n")
 		end
 		return need,NamedTuple{tuple()}(tuple())
 	end
 	args = args[flag:end]
-	if ! (iseven(length(args)) || length(args) == 0)
+	if isodd(length(args)) || length(args) == 0
 		myexit("sorry, parameter $args number should >=0 and is odd number")
 	end
 
@@ -215,10 +264,10 @@ function parse_kws(args::Array{String})
 	param_values = [convert_type(args[i]) for i in 2:2:length(args)]
 		
 	kws = NamedTuple{tuple(param_keys...)}(tuple(param_values...)) # genearate keywords argument for function, ... mean unpack the array, convert array to tuple
-	if length(need) != 0
+	if length(need) != 0 && info
 		println("position arguments: $need")
 	end
-	if length(kws) != 0
+	if length(kws) != 0 && info
 		println("optional arguments: $kws\n")
 	end
 	return need, kws
@@ -247,7 +296,6 @@ function call_module(the_called::Module, the_func, need::Tuple, kws::NamedTuple)
 	funcs = names(the_called)
 	flag = 1
 	for i in firstindex(funcs):lastindex(funcs)
-		#println(typeof(i).name.mt.name)
 		func = funcs[i]
 		the_type = typeof(getfield(the_called, func))
 		if the_type != Module && string(func) == the_func
@@ -263,7 +311,7 @@ function call_module(the_called::Module, the_func, need::Tuple, kws::NamedTuple)
 		end
 	end
 
-	if flag == 1
+	if flag == 1 && ! occur_help(the_func)
 		myexit("sorry, not find function $the_func in $the_called")
 	end
 	# thanks to https://discourse.julialang.org/t/how-to-set-variable-to-key-of-keyword-arguments-of-function/18995
