@@ -9,7 +9,8 @@ using Dates
 
 
 function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green, info::Bool=true)
-	show_info(info, color, true)
+	version = "0.1.0"
+	show_info(info, color, true, version)
 	the_called_type = check_called_type(the_called, ARGS)
 	help_info(the_called, the_called_type, ARGS)
 	need, kws, the_called = parse_args(ARGS, the_called_type, the_called, info, color)
@@ -37,13 +38,13 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 	else
 		myexit("sorry, not support the_called_type = $the_called_type for $the_called yet")
 	end
-	show_info(info, color, false)
+	show_info(info, color, false, version)
 end
 
-function show_info(info::Bool=true, color::Symbol=:green, head::Bool=true)
+function show_info(info::Bool=true, color::Symbol=:green, head::Bool=true, version::String="0.1.0")
 	if info && head
 		io = IOContext(stdout, :color => true)
-		printstyled(io, "Jfire version 0.0.9\n",color=color)
+		printstyled(io, "Jfire version $version\n",color=color)
 		printstyled(io, "$(now()) ... start fire\n", color=color)	
 	end
 	if info && head == false
