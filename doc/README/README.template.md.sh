@@ -1,3 +1,4 @@
+set -e
 cat README.template.md.header
 
 jl=myth.jl

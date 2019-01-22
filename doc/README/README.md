@@ -28,19 +28,14 @@ end
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth, time=true, color=:yellow)
+	Jfire.Fire(myth, time=true, color=:yellow, info=false)
 end
 ```
 then run :
 ```
-$ julia myth.jl hello --name world
-[33mJfire version 0.0.9[39m
-[33m2019-01-11T10:28:24.576 ... start fire[39m
-optional arguments: (name = "world",)
-
-hello, world. how is the weather?. 3
-  0.056134 seconds (66.74 k allocations: 3.364 MiB, 12.26% gc time)
-[33m2019-01-11T10:28:25.089 ... end fire[39m
+$ julia myth.jl hello --name world --number Int::5
+hello, world. how is the weather?. 5
+  0.033177 seconds (69.26 k allocations: 3.502 MiB)
 ```
 doc/myths.jl is an example call from multiple Module:<br>
 ```
@@ -55,51 +50,46 @@ end
 
 module myth2
 export hello2
-function hello2(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
+function hello2(;name::String="sikaiwei", greet::String="how is the weather?", number::Float32=3.0)
 	println("hello, $name. $greet. $number")
 end
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	ms = (myth1, myth2)
-	Jfire.Fire(ms)
+	Jfire.Fire(ms, info=false,  time=false)
 end
 ```
 then run :
 ```
-$ julia myths.jl  myth1.hello1 --name world
-[32mJfire version 0.0.9[39m
-[32m2019-01-11T10:28:26.397 ... start fire[39m
-optional arguments: (name = "world",)
-
-hello, world. how is the weather?. 3
-[32m2019-01-11T10:28:26.889 ... end fire[39m
+$ julia myths.jl  myth1.hello1 --name world --number Int::5
+hello, world. how is the weather?. 5
 ```
 doc/func.jl is an example call from single Function:<br>
 ```
 using Jfire
-function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
+function myth_func1(wow::String;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
 end
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth_func1)
+	Jfire.Fire(myth_func1, info=false)
 end
 ```
 then run :
 ```
 $ julia  func.jl wow
-[32mJfire version 0.0.9[39m
-[32m2019-01-11T10:28:28.179 ... start fire[39m
-position arguments: ("wow",)
-
 wow, hello, sikaiwei ~ how is the weather?
-[32m2019-01-11T10:28:28.538 ... end fire[39m
 ```
 doc/funcs.jl is an example call from multiple Function:<br>
 ```
 using Jfire
-function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?")
-	println("$wow, hello, $name ~ $greet")
+function myth_func1(wow;name::String="sikaiwei", greet::String="how is the weather?", fishing::Bool=true)
+	if fishing
+		fish = ""
+	else
+		fish = "not"
+	end
+	println("$wow, hello, $name ~ $greet, I will $fish go fishing today~")
 end
 function myth_func2(wow;name::String="sikaiwei", greet::String="how is the weather?")
 	println("$wow, hello, $name ~ $greet")
@@ -111,15 +101,15 @@ end
 ```
 then run :
 ```
-$ julia  funcs.jl  myth_func1 well --greet 'nice day'
+$ julia  funcs.jl  myth_func1 well --greet 'nice day' --fishing Bool::true
 [33mJfire version 0.0.9[39m
-[33m2019-01-11T10:28:30.028 ... start fire[39m
+[33m2019-01-22T12:39:00.691 ... start fire[39m
 position arguments: ("well",)
-optional arguments: (greet = "nice day",)
+optional arguments: (greet = "nice day", fishing = true)
 
-well, hello, sikaiwei ~ nice day
-  0.007997 seconds (10.49 k allocations: 596.982 KiB)
-[33m2019-01-11T10:28:30.62 ... end fire[39m
+well, hello, sikaiwei ~ nice day, I will  go fishing today~
+  0.027419 seconds (41.69 k allocations: 2.172 MiB, 28.99% gc time)
+[33m2019-01-22T12:39:01.396 ... end fire[39m
 ```
 <br>
 detail test script is doc/test.sh<br>

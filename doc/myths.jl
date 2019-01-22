@@ -9,12 +9,12 @@ end
 
 module myth2
 export hello2
-function hello2(;name::String="sikaiwei", greet::String="how is the weather?", number::Number=3)
+function hello2(;name::String="sikaiwei", greet::String="how is the weather?", number::Float32=3.0)
 	println("hello, $name. $greet. $number")
 end
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	ms = (myth1, myth2)
-	Jfire.Fire(ms)
+	Jfire.Fire(ms, info=false,  time=false)
 end
