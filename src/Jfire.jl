@@ -9,7 +9,7 @@ using Dates
 
 
 function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color::Symbol=:green, info::Bool=true)
-	version = "0.1.0"
+	version = "0.1.1"
 	show_info(info, color, true, version)
 	the_called_type = check_called_type(the_called, ARGS)
 	help_info(the_called, the_called_type, ARGS)
@@ -110,13 +110,20 @@ end
 function module_help(the_called::Module, args::Array{String}, the_called_type::String="")
 	the_name = replace(string(the_called), r"^Main\."=>"")
 	printstyled("\nModule $the_name\n", color=:green)
-	if length(args) >=1 && occur_help(args[1])
+	help_level = 0
+	if (length(args) == 1 || length(args) == 2) && occur_help(args[end])
 		funcs = names(the_called)
+		if length(args) == 2
+			help_level = 1
+		end
 		for i in firstindex(funcs):lastindex(funcs)
 			func = funcs[i]
+			if length(args) == 2 && args[1] != String(Symbol(func))
+				continue
+			end
 			the_type = typeof(getfield(the_called, func))
 			if the_type != Module
-				show_function_info(getfield(the_called, Symbol(func))) 
+				show_function_info(getfield(the_called, Symbol(func)); help_level=help_level) 
 			end
 		end
 	end
@@ -205,9 +212,13 @@ function function_help(args::Array{String}, the_called::Function)
 	end
 end
 
-function show_function_info(func::Function)
+function show_function_info(func::Function; help_level::Int=0)
 	#dump(func)
-	println(methods(func))
+	if help_level == 0
+		println(func)
+	else
+		println(methods(func))
+	end
 end
 
 function get_help(the_called)
