@@ -217,7 +217,31 @@ function show_function_info(func::Function; help_level::Int=0)
 	if help_level == 0
 		println(func)
 	else
-		println(methods(func))
+		#println(methods(func))
+		println("start doc")
+		@doc func
+		name = split(String(Symbol(func)), r"\.")[end]
+		println("Function $name:")
+		t = String(Symbol(methods(func)))
+		paras = replace(t, r".*\(|\).*|\s"s => "")
+		need_args = []
+		kw_args = []
+		if match(r";", paras) != nothing
+		    kw_args = split(split(paras, ";")[2], ",")
+		end
+		need_args = split(split(paras, ";")[1], ",")
+		if need_args != nothing
+			println("\nPositional Arguments:")
+			for arg in need_args
+				println("\t$arg")
+			end
+		end
+		if kw_args != nothing
+			println("Keyword Arguments:(optional)")
+			for k in kw_args
+				println("\t--$k")
+			end
+		end
 	end
 end
 
