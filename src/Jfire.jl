@@ -16,6 +16,7 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 	need, kws, the_called = parse_args(ARGS, the_called_type, the_called, info, color)
 	
 	if the_called_type  == "module"
+		println("call module")
 		the_func = ARGS[1]
 		if time
 			@time call_module(the_called, the_func, need, kws)
@@ -23,6 +24,7 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 			call_module(the_called, the_func, need, kws)
 		end
 	elseif the_called_type == "modules"
+		println("call modules")
 		the_func = replace(ARGS[1], r"^.*\."=>"")
 		if time
 			@time call_module(the_called, the_func, need, kws)
@@ -30,6 +32,7 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 			call_module(the_called, the_func, need, kws)
 		end
 	elseif the_called_type == "function" || the_called_type == "functions" 
+		println("call function")
 		if time
 			@time call_function(the_called, need, kws)
 		else
@@ -63,7 +66,10 @@ function help_info(the_called::Union{Function, Module, Tuple}, the_called_type::
 	elseif the_called_type == "modules"
 		for m in the_called
 			#println("1")
-			module_help(m, args, the_called_type)
+			ismatch = module_help(m, args, the_called_type)
+			if ismatch
+				break
+			end
 			#println("3")
 		end
 	elseif the_called_type == "function"
@@ -111,6 +117,7 @@ function module_help(the_called::Module, args::Array{String}, the_called_type::S
 	the_name = replace(string(the_called), r"^Main\."=>"")
 	printstyled("\nModule $the_name\n", color=:green)
 	help_level = 0
+	ismatch::Bool = false
 	if (length(args) == 1 || length(args) == 2) && occur_help(args[end])
 		funcs = names(the_called)
 		if length(args) == 2
@@ -122,17 +129,21 @@ function module_help(the_called::Module, args::Array{String}, the_called_type::S
 				continue
 			end
 			the_type = typeof(getfield(the_called, func))
-			if the_type != Module
-				show_function_info(getfield(the_called, Symbol(func)); help_level=help_level) 
+			if the_type != Module # is Function
+				#println("help_level is $help_level")
+				show_function_info(getfield(the_called, Symbol(func)); help_level=help_level)
+				ismatch = true
 			end
 		end
 	end
 	if length(args) >=2 && occur_help(args[2])
 		if occursin(r"\.", args[1])
 			func = replace(args[1], r"^.*\."=>"")
-			show_function_info(getfield(the_called, Symbol(func)))
+			show_function_info(getfield(the_called, Symbol(func)); help_level=help_level)
+			ismatch = true
 		end
 	end
+	return ismatch
 end
 
 function occur_help(str::String)
@@ -159,10 +170,10 @@ function parse_args(args::Array{String}, the_called_type::String, the_called::Un
 			module_name = replace(string(m), r"^Main\."=>"")
 			if replace(args[1], r"\..*"=>"") == module_name && info
 				printstyled("\nmodule $module_name\n", color=color)
-			end
-			if length(args)>=1 &&  replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
-				need, kws = parse_kws(args[2:end], info)
-				return need, kws, m
+				if length(args)>=1 &&  replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
+					need, kws = parse_kws(args[2:end], info)
+					return need, kws, m
+				end
 			end
 		end
 		if length(args)>=1
@@ -215,10 +226,10 @@ end
 function show_function_info(func::Function; help_level::Int=0)
 	#dump(func)
 	if help_level == 0
-		println(func)
+		println(replace(string(func), r"^Main\."=>""))
 	else
 		#println(methods(func))
-		println("start doc")
+		#println("start doc")
 		@doc func
 		name = split(String(Symbol(func)), r"\.")[end]
 		println("Function $name:")
@@ -230,17 +241,22 @@ function show_function_info(func::Function; help_level::Int=0)
 		    kw_args = split(split(paras, ";")[2], ",")
 		end
 		need_args = split(split(paras, ";")[1], ",")
-		if need_args != nothing
+		if need_args != nothing && need_args[1] != ""
 			println("\nPositional Arguments:")
 			for arg in need_args
 				println("\t$arg")
 			end
+		else
+			println("")
 		end
 		if kw_args != nothing
 			println("Keyword Arguments:(optional)")
 			for k in kw_args
-				println("\t--$k")
+				println("\t--$k") # use code_lowered(funciton) to get default parameter value
 			end
+			println("")
+		else
+			println("")
 		end
 	end
 end
