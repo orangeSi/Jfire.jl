@@ -46,15 +46,19 @@ end
 
 function show_info(info::Bool=true, color::Symbol=:green, head::Bool=true, version::String="0.1.0")
 	if info && head
-		io = IOContext(stdout, :color => true)
-		printstyled(io, "Jfire version $version\n",color=color)
-		printstyled(io, "$(now()) ... start fire\n", color=color)	
+		print_with_color("Jfire version $version\n$(now()) ... start fire\n", color)
 	end
 	if info && head == false
-		io = IOContext(stdout, :color => true)
-		printstyled(io, "$(now()) ... end fire\n", color=color)	
+		print_with_color("$(now()) ... end fire\n", color)
 	end
 end
+
+
+function print_with_color(content::String="", color::Symbol=:green)
+	io = IOContext(stdout, :color => true)
+	printstyled(io, "$content\n", color=color)
+end
+
 
 function help_info(the_called::Union{Function, Module, Tuple}, the_called_type::String, args::Array)
 	#println("22")
@@ -131,7 +135,7 @@ function module_help(the_called::Module, args::Array{String}, the_called_type::S
 			the_type = typeof(getfield(the_called, func))
 			if the_type != Module # is Function
 				#println("help_level is $help_level")
-				show_function_info(getfield(the_called, Symbol(func)); help_level=help_level)
+				show_function_info(getfield(the_called, Symbol(func)); help_level=help_level, host=the_called)
 				ismatch = true
 			end
 		end
@@ -139,7 +143,7 @@ function module_help(the_called::Module, args::Array{String}, the_called_type::S
 	if length(args) >=2 && occur_help(args[2])
 		if occursin(r"\.", args[1])
 			func = replace(args[1], r"^.*\."=>"")
-			show_function_info(getfield(the_called, Symbol(func)); help_level=help_level)
+			show_function_info(getfield(the_called, Symbol(func)); help_level=help_level, host=the_called)
 			ismatch = true
 		end
 	end
@@ -223,14 +227,15 @@ function function_help(args::Array{String}, the_called::Function)
 	end
 end
 
-function show_function_info(func::Function; help_level::Int=0)
+function show_function_info(func::Function; help_level::Int=0, host::Module)
 	#dump(func)
 	if help_level == 0
 		println(replace(string(func), r"^Main\."=>""))
 	else
 		#println(methods(func))
 		#println("start doc")
-		@doc func
+		#@doc func
+		#print(code_lowered(func))
 		name = split(String(Symbol(func)), r"\.")[end]
 		println("Function $name:")
 		t = String(Symbol(methods(func)))
@@ -241,10 +246,19 @@ function show_function_info(func::Function; help_level::Int=0)
 		    kw_args = split(split(paras, ";")[2], ",")
 		end
 		need_args = split(split(paras, ";")[1], ",")
+		docs = Dict()
+		if host	!= nothing
+			docs = getfield(host.thedoc, Symbol(name))
+		end
+		desc = ""
 		if need_args != nothing && need_args[1] != ""
 			println("\nPositional Arguments:")
 			for arg in need_args
-				println("\t$arg")
+				if host	!= nothing
+					arg_name = split(arg, "::")[1]
+					desc = get(docs, arg_name, "")
+				end
+				print_with_color("\t$arg\t$desc", :green)
 			end
 		else
 			println("")
@@ -252,7 +266,11 @@ function show_function_info(func::Function; help_level::Int=0)
 		if kw_args != nothing
 			println("Keyword Arguments:(optional)")
 			for k in kw_args
-				println("\t--$k") # use code_lowered(funciton) to get default parameter value
+				if host	!= nothing
+					k_name = split(k, "::")[1]
+					desc = get(docs, k_name, "")
+				end
+				println("\t--$k\t$desc") # use code_lowered(funciton) to get default parameter value
 			end
 			println("")
 		else
