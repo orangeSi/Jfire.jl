@@ -235,7 +235,7 @@ function show_function_info(func::Function; help_level::Int=0, host::Module)
 		#println(methods(func))
 		#println("start doc")
 		#@doc func
-		#print(code_lowered(func))
+		print(code_lowered(func))
 		name = split(String(Symbol(func)), r"\.")[end]
 		println("Function $name:")
 		t = String(Symbol(methods(func)))
@@ -247,14 +247,18 @@ function show_function_info(func::Function; help_level::Int=0, host::Module)
 		end
 		need_args = split(split(paras, ";")[1], ",")
 		docs = Dict()
-		if host	!= nothing
+		had_doc = false
+		if host	!= nothing && in(:thedoc, names(host))
+			had_doc = true
+		end
+		if had_doc
 			docs = getfield(host.thedoc, Symbol(name))
 		end
 		desc = ""
 		if need_args != nothing && need_args[1] != ""
 			println("\nPositional Arguments:")
 			for arg in need_args
-				if host	!= nothing
+				if had_doc
 					arg_name = split(arg, "::")[1]
 					desc = get(docs, arg_name, "")
 				end
@@ -266,7 +270,7 @@ function show_function_info(func::Function; help_level::Int=0, host::Module)
 		if kw_args != nothing
 			println("Keyword Arguments:(optional)")
 			for k in kw_args
-				if host	!= nothing
+				if had_doc
 					k_name = split(k, "::")[1]
 					desc = get(docs, k_name, "")
 				end
