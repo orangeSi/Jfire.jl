@@ -8,5 +8,5 @@ end
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-	Jfire.Fire(myth, time=true, color=:yellow, info=false)
+	Jfire.Fire(myth, time=false, color=:yellow, info=false)
 end
