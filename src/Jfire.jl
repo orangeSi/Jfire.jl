@@ -13,7 +13,7 @@ function Fire(the_called::Union{Function, Module, Tuple};time::Bool=false, color
 	show_info(info, color, true, version)
 	the_called_type = check_called_type(the_called, ARGS)
 	help_info(the_called, the_called_type, ARGS)
-	need, kws, the_called = parse_args(ARGS, the_called_type, the_called, info, color)
+	need, kws, the_called = parse_args(ARGS, the_called_type, the_called, true, color)
 	
 	if the_called_type  == "module"
 		println("call module")
@@ -134,7 +134,7 @@ function module_help(the_called::Module, args::Array{String}, the_called_type::S
 				continue
 			end
 			the_type = typeof(getfield(the_called, func))
-			println("the_type is $the_type")
+			#println("the_type is $the_type")
 			if the_type != Module && in(Symbol(func), names(the_called)) # is Function
 				#println("help_level is $help_level")
 				printstyled("\nModule $the_name\n", color=:green)
@@ -178,6 +178,9 @@ function parse_args(args::Array{String}, the_called_type::String, the_called::Un
 				myexit("error, $m is not a Module name")
 			end
 			module_name = replace(string(m), r"^Main\."=>"")
+			#println("module_name is $module_name")
+			#println(replace(args[1], r"\..*"=>""))
+			#println(info)
 			if replace(args[1], r"\..*"=>"") == module_name && info
 				printstyled("\nmodule $module_name\n", color=color)
 				if length(args)>=1 &&  replace(string(m), r".*\."=>"") == replace(args[1], r"\..*"=>"")
@@ -264,28 +267,7 @@ function show_function_info(func::Function; help_level::Int=0, host::Module)
 		if need_args != nothing && need_args[1] != ""
 			println("\nPositional Arguments:")
 			for arg in need_args
-				arg_type = ""
-				arg_default = ""
-				arg_comment = ""
-				if had_doc
-					arg_name = split(arg, "::")[1]
-					#desc = get(docs, arg_name, "")
-					if haskey(docs, arg_name)
-						if haskey(docs[arg_name], "type")
-							arg_type = docs[arg_name]["type"]
-						end
-						if haskey(docs[arg_name], "default")
-							arg_default = docs[arg_name]["default"]
-						end
-						if haskey(docs[arg_name], "comment")
-							arg_comment = docs[arg_name]["comment"]
-						end
-					end
-
-				end
-				if arg_comment != ""
-					arg_comment = " ,$arg_comment"
-				end
+				arg_comment, arg_type, arg_default = get_detail_paramter(arg, had_doc, docs)
 				print_with_color("\t$arg_name::$arg_type\t$arg_default\t$arg_comment", :green)
 			end
 		else
@@ -294,33 +276,43 @@ function show_function_info(func::Function; help_level::Int=0, host::Module)
 		if kw_args != nothing
 			println("Keyword Arguments:(optional)")
 			for k in kw_args
-				arg_type = ""
-				arg_default = ""
-				arg_comment = ""
-				if had_doc
-					arg_name = split(k, "::")[1]
-					if haskey(docs, arg_name)
-						if haskey(docs[arg_name], "type")
-							arg_type = docs[arg_name]["type"]
-						end
-						if haskey(docs[arg_name], "default")
-							arg_default = docs[arg_name]["default"]
-						end
-						if haskey(docs[arg_name], "comment")
-							arg_comment = docs[arg_name]["comment"]
-						end
-					end
-				end
-				if arg_comment != "" 
-					arg_comment = " ,$arg_comment"
-				end
-				println("\t--$k::$arg_type\tdefault $arg_default $arg_comment") # use code_lowered(funciton) to get default parameter value
+				 arg_comment, arg_type, arg_default = get_detail_paramter(k, had_doc, docs)
+				println("\t--$k$arg_type\t$arg_default $arg_comment") # use code_lowered(funciton) to get default parameter value
 			end
 			println("")
 		else
 			println("")
 		end
 	end
+end
+function get_detail_paramter(k::SubString, had_doc::Bool, docs::Dict)
+	arg_type = ""
+	arg_default = ""
+	arg_comment = ""
+	if had_doc
+		arg_name = split(k, "::")[1]
+		if haskey(docs, arg_name)
+			if haskey(docs[arg_name], "type")
+				arg_type = docs[arg_name]["type"]
+			end
+			if haskey(docs[arg_name], "default")
+				arg_default = docs[arg_name]["default"]
+			end
+			if haskey(docs[arg_name], "comment")
+				arg_comment = docs[arg_name]["comment"]
+			end
+		end
+	end
+	if arg_comment != "" 
+		arg_comment = " ,$arg_comment"
+	end
+	if arg_type != ""
+		arg_type = "::$arg_type"
+	end
+	if arg_default != ""
+		arg_default = "default $arg_default"
+	end
+	return arg_comment, arg_type, arg_default
 end
 
 function get_help(the_called)
